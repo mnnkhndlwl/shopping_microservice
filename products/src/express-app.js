@@ -3,7 +3,7 @@ const cors  = require('cors');
 const { products, appEvents } = require('./api');
 
 
-module.exports = async (app) => {
+module.exports = async (app,channel) => {
 
     app.use(express.json({ limit: '1mb'}));
    // app.use(express.urlencoded({ extended: true, limit: '1mb'}));
@@ -11,10 +11,10 @@ module.exports = async (app) => {
     app.use(express.static(__dirname + '/public'))
 
     //handle events
-    appEvents(app);
+   // appEvents(app);
 
     //api
-    products(app);
+    products(app,channel);
 
     // error handling
    // app.use(HandleErrors);
