@@ -1,7 +1,9 @@
 const amqplib = require("amqplib");
 const { v4: uuid4 } = require("uuid");
-
+const dotEnv = require("dotenv");
 let amqplibConnection = null;
+
+require('dotenv').config();
 
 const getChannel = async () => {
   if (amqplibConnection === null) {
