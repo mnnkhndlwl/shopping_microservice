@@ -1,6 +1,6 @@
 // which service it is
 describe("ShoppingService", () => {
-    // Which function
+    // Which function we are testing
     describe("PlaceOrder", () => {
       // Which Scenario we are testing
       test("validate user inputs", () => {});
