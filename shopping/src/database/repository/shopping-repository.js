@@ -1,124 +1,127 @@
-const mongoose = require('mongoose');
-const { OrderModel, CartModel } = require('../models');
-const { v4: uuidv4 } = require('uuid');
+const mongoose = require("mongoose");
+const { OrderModel, CartModel, WishlistModel } = require("../models");
+const { v4: uuidv4 } = require("uuid");
+const _ = require("lodash");
 
 //Dealing with data base operations
 class ShoppingRepository {
+  // Cart
+  async Cart(customerId) {
+    return CartModel.findOne({ customerId });
+  }
 
-    async Orders(customerId){
-
-        const orders = await OrderModel.find({customerId });
-        
-        return orders;
-
-    }
-
-    async Cart(customerId){
-
-        const cartItems = await CartModel.find({ customerId: customerId });
-
-
-        if(cartItems){
-            return cartItems;
+  async ManageCart(customerId, product, qty, isRemove) {
+    const cart = await CartModel.findOne({ customerId });
+    if (cart) {
+      if (isRemove) {
+        const cartItems = _.filter(
+          cart.items,
+          (item) => item.product._id !== product._id
+        );
+        cart.items = cartItems;
+        // handle remove case
+      } else {
+        const cartIndex = _.findIndex(cart.items, {
+          product: { _id: product._id },
+        });
+        if (cartIndex > -1) {
+          cart.items[cartIndex].unit = qty;
+        } else {
+          cart.items.push({ product: { ...product }, unit: qty });
         }
-
-        throw new Error('Data Not found!');
+      }
+      return await cart.save();
+    } else {
+      // create a new one
+      return await CartModel.create({
+        customerId,
+        items: [{ product: { ...product }, unit: qty }],
+      });
     }
+  }
 
-    async AddCartItem(customerId,item,qty,isRemove){
- 
-            // return await CartModel.deleteMany();
- 
-            const cart = await CartModel.findOne({ customerId: customerId })
-
-            const { _id } = item;
-
-            if(cart){
-                
-                let isExist = false;
-
-                let cartItems = cart.items;
-
-
-                if(cartItems.length > 0){
-
-                    cartItems.map(item => {
-                                                
-                        if(item.product._id.toString() === _id.toString()){
-                            if(isRemove){
-                                cartItems.splice(cartItems.indexOf(item), 1);
-                             }else{
-                               item.unit = qty;
-                            }
-                             isExist = true;
-                        }
-                    });
-                } 
-                
-                if(!isExist && !isRemove){
-                    cartItems.push({product: { ...item}, unit: qty });
-                }
-
-                cart.items = cartItems;
-
-                return await cart.save()
- 
-            }else{
-
-               return await CartModel.create({
-                    customerId,
-                    items:[{product: { ...item}, unit: qty }]
-                })
-            }
-
-        
-    }
- 
-    async CreateNewOrder(customerId, txnId){
-
-        //required to verify payment through TxnId
-
-        const cart = await CartModel.findOne({ customerId: customerId })
-
-        if(cart){         
-            
-            let amount = 0;   
-
-            let cartItems = cart.items;
-
-            if(cartItems.length > 0){
-                //process Order
-                
-                cartItems.map(item => {
-                    amount += parseInt(item.product.price) *  parseInt(item.unit);   
-                });
-    
-                const orderId = uuidv4();
-    
-                const order = new OrderModel({
-                    orderId,
-                    customerId,
-                    amount,
-                    status: 'received',
-                    items: cartItems
-                })
-    
-                cart.items = [];
-                
-                const orderResult = await order.save();
-                await cart.save();
-                return orderResult;
-
-
-            }
-
- 
-
+  async ManageWishlist(customerId, product_id, isRemove = false) {
+    const wishlist = await WishlistModel.findOne({ customerId });
+    if (wishlist) {
+      if (isRemove) {
+        const produtcs = _.filter(
+          wishlist.products,
+          (product) => product._id !== product_id
+        );
+        wishlist.products = produtcs;
+        // handle remove case
+      } else {
+        const wishlistIndex = _.findIndex(wishlist.products, {
+          _id: product_id,
+        });
+        if (wishlistIndex < 0) {
+          wishlist.products.push({ _id: product_id });
         }
+      }
+      return await wishlist.save();
+    } else {
+      // create a new one
+      return await WishlistModel.create({
+        customerId,
+        wishlist: [{ _id: product_id }],
+      });
+    }
+  }
 
-        return {}
+  async GetWishlistByCustomerId(customerId) {
+    return WishlistModel.findOne({ customerId });
+  }
+
+  async Orders(customerId, orderId) {
+    if (orderId) {
+      return OrderModel.findOne({ _id: orderId });
+    } else {
+      return OrderModel.find({ customerId });
+    }
+  }
+
+  async CreateNewOrder(customerId, txnId) {
+    const cart = await CartModel.findOne({ customerId: customerId });
+
+    if (cart) {
+      let amount = 0;
+
+      let cartItems = cart.items;
+
+      if (cartItems.length > 0) {
+        //process Order
+
+        cartItems.map((item) => {
+          amount += parseInt(item.product.price) * parseInt(item.unit);
+        });
+
+        const orderId = uuidv4();
+
+        const order = new OrderModel({
+          orderId,
+          customerId,
+          amount,
+          status: "received",
+          items: cartItems,
+        });
+
+        cart.items = [];
+
+        const orderResult = await order.save();
+        await cart.save();
+        return orderResult;
+      }
     }
 
+    return {};
+  }
+
+  async deleteProfileData(customerId) {
+    return Promise.all([
+      CartModel.findOneAndDelete({ customerId }),
+      WishlistModel.findOneAndDelete({ customerId }),
+    ]);
+  }
 }
 
 module.exports = ShoppingRepository;
