@@ -1,3 +1,26 @@
+const mongoose = require('mongoose');
+
+const Schema = mongoose.Schema;
+
+const ProductSchema = new Schema({
+    name: String,
+    desc: String,
+    banner: String,
+    category: String,
+    subcategory: String,
+    unit: Number,
+    regular_price: Number,
+    store: String,
+    highlight: String,
+    weight: Number,
+    brand: String,
+    price: Number,
+    available: Boolean
+});
+
+module.exports =  mongoose.model('product', ProductSchema);
+
+
 const { ProductModel } = require("../models");
 const { APIError, BadRequestError } = require("../../utils/app-errors");
 
@@ -6,23 +29,33 @@ class ProductRepository {
   async CreateProduct({
     name,
     desc,
-    type,
+    banner,
+    category,
+    subcategory,
     unit,
+    regular_price,
+    store,
+    highlight,
+    weight,
+    brand,
     price,
     available,
-    suplier,
-    banner,
   }) {
     try {
       const product = new ProductModel({
         name,
         desc,
-        type,
+        banner,
+        category,
+        subcategory,
         unit,
+        regular_price,
+        store,
+        highlight,
+        weight,
+        brand,
         price,
         available,
-        suplier,
-        banner,
       });
 
       const productResult = await product.save();
@@ -62,7 +95,7 @@ class ProductRepository {
 
   async FindByCategory(category) {
     try {
-      const products = await ProductModel.find({ type: category });
+      const products = await ProductModel.find({ category: category });
       return products;
     } catch (err) {
       throw new APIError(
