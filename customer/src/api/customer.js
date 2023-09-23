@@ -33,7 +33,7 @@ module.exports = (app, channel) => {
 
         const { type, completeAddress, latitude,longitude } = req.body;
 
-        console.log(latitute);
+        console.log(latitude);
 
         const { data } = await service.AddNewAddress( _id ,{ type, completeAddress, latitude,longitude });
 

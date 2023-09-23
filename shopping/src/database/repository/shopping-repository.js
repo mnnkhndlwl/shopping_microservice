@@ -4,8 +4,8 @@ const { v4: uuidv4 } = require("uuid");
 
 //Dealing with data base operations
 class ShoppingRepository {
-  async Orders(customerId) {
-    const orders = await OrderModel.find({ customerId });
+  async Orders(customer_id) {
+    const orders = await OrderModel.find({ customer_id:customer_id});
 
     return orders;
   }

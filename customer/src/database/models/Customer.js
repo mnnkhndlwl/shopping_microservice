@@ -8,6 +8,10 @@ const CustomerSchema = new Schema(
     password: String,
     salt: String,
     phone: String,
+    isAdmin: {
+      type: Boolean,
+      default : false
+    },
     address: [{ type: Schema.Types.ObjectId, ref: "address", require: true }],
     cart: [
       {

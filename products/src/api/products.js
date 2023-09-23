@@ -3,6 +3,7 @@ const UserAuth = require("./middlewares/auth");
 //const { PublishCustomerEvent,PublishShoppingEvent } = require('../utils');
 const { PublishMessage } = require("../utils");
 const { CUSTOMER_BINDING_KEY, SHOPPING_BINDING_KEY } = require("../config");
+const { createRegex } = require("../utils/regex");
 
 module.exports = (app, channel) => {
   const service = new ProductService();
@@ -65,6 +66,17 @@ module.exports = (app, channel) => {
 
     try {
       const { data } = await service.GetProductDescription(productId);
+      return res.status(200).json(data);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  app.get("/search/products", async (req, res, next) => {
+    const searchValue = req.query.q;
+    const searchRegex = createRegex(searchValue);
+    try {
+      const { data } = await service.SearchProducts(searchRegex);
       return res.status(200).json(data);
     } catch (err) {
       next(err);

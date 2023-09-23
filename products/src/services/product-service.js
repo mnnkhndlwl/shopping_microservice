@@ -62,6 +62,15 @@ class ProductService {
 
     }
 
+    async SearchProducts(searchRegex) {
+        try {
+            const products = await this.repository.SearchProductsRegex(searchRegex);
+            return FormateData(products); 
+        } catch (err) {
+            throw new APIError('Data Not found');
+        }
+    }
+
     async GetSelectedProducts(selectedIds){
         try {
             const products = await this.repository.FindSelectedProducts(selectedIds);
