@@ -15,7 +15,7 @@ module.exports = async (app,channel) => {
 
     //api
     products(app,channel);
-    categories(app);
+    categories(app,channel);
 
     // error handling
    // app.use(HandleErrors);

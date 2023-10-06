@@ -26,12 +26,17 @@ const CustomerSchema = new Schema(
     ],
     wishlist: [
       {
-        _id: { type: String, require: true },
-        name: { type: String },
-        description: { type: String },
-        banner: { type: String },
-        avalable: { type: Boolean },
-        price: { type: Number },
+        _id: String,
+        banner: String,
+        brand: String,
+        category: String,
+        name: String,
+        price: Number,
+        quantity: Number,
+        regular_price: Number,
+        store: String,
+        subcategory: String,
+        weight: String,
       },
     ],
     orders: [

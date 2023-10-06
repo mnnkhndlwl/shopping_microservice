@@ -16,7 +16,7 @@ class CustomerRepository {
     return customerResult;
   }
 
-  async CreateAddress({ _id, type, completeAddress,latitude, longitude }) {
+  async CreateAddress({ _id, type, completeAddress, latitude, longitude }) {
     const profile = await CustomerModel.findById(_id);
 
     if (profile) {
@@ -78,50 +78,58 @@ class CustomerRepository {
     return profile.wishlist;
   }
 
-  async AddWishlistItem(
-    customerId,
-    { _id, name, desc, price, available, banner }
-  ) {
-    const product = {
-      _id,
-      name,
-      desc,
-      price,
-      available,
-      banner,
-    };
-
-    const profile = await CustomerModel.findById(customerId).populate(
-      "wishlist"
-    );
-
-    if (profile) {
-      let wishlist = profile.wishlist;
-
-      if (wishlist.length > 0) {
-        let isExist = false;
-        wishlist.map((item) => {
-          if (item._id.toString() === product._id.toString()) {
-            const index = wishlist.indexOf(item);
-            wishlist.splice(index, 1);
-            isExist = true;
-          }
-        });
-
-        if (!isExist) {
-          wishlist.push(product);
-        }
-      } else {
-        wishlist.push(product);
+  async AddWishlistItem(customerId, productData) {
+    try {
+      const product = {
+        _id: productData._id,
+        banner: productData.banner,
+        brand: productData.brand,
+        category: productData.category,
+        name: productData.name,
+        price: productData.price,
+        quantity: productData.quantity,
+        regular_price: productData.regular_price,
+        store: productData.store,
+        subcategory: productData.subcategory,
+        weight: productData.weight,
+      };
+  
+      const profile = await CustomerModel.findById(customerId).populate(
+        "wishlist"
+      );
+  
+      if (!profile) {
+        throw new Error("Customer profile not found");
       }
-
-      profile.wishlist = wishlist;
+  
+      const wishlist = profile.wishlist || [];
+  
+      // Check if the product is already in the wishlist
+      const isProductInWishlist = wishlist.some(
+        (item) => item._id.toString() === product._id.toString()
+      );
+  
+      if (isProductInWishlist) {
+        // If the product is already in the wishlist, remove it
+        const updatedWishlist = wishlist.filter(
+          (item) => item._id.toString() !== product._id.toString()
+        );
+        profile.wishlist = updatedWishlist;
+       // return false;
+      } else {
+        // If the product is not in the wishlist, add it
+        wishlist.push(product);
+        profile.wishlist = wishlist;
+       // return true;
+      }
+  
+      const profileResult = await profile.save();
+  
+      return profileResult.wishlist;
+    } catch (error) {
+      console.log(error);
     }
-
-    const profileResult = await profile.save();
-
-    return profileResult.wishlist;
-  }
+  }  
 
   async AddCartItem(customerId, { _id, name, price, banner }, qty, isRemove) {
     const profile = await CustomerModel.findById(customerId).populate("cart");

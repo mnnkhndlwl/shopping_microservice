@@ -54,6 +54,21 @@ module.exports = (app,channel) => {
     return res.status(200).json(data);
   });
 
+  //payment
+  app.post("/pay",async(req,res,next) => {
+    const amount = req.body.total;
+    const { data } = await service.CompletePayment({amount});
+
+    if(data.error) {
+      
+      return res.status(500).json({
+        message: 'failed payment',
+      });
+    }
+
+    return res.status(200).json(data);
+  });
+
   app.get("/whoami", (req, res, next) => {
     return res.status(200).json({ msg: "/shoping : I am Shopping Service" });
   });

@@ -47,6 +47,7 @@ class CategoryService {
 
     async UpdateCategory(categoryId, categoryData) {
         try {
+            
             const updatedCategory = await this.repository.UpdateCategory(categoryId, categoryData);
             return FormateData(updatedCategory);
         } catch (err) {

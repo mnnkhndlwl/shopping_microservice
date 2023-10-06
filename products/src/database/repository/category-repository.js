@@ -20,7 +20,9 @@ class CategoryRepository {
 
   async Categories() {
     try {
-      return await CategoryModel.find();
+      const ans = await CategoryModel.find();
+      console.log(ans);
+      return ans;
     } catch (err) {
       throw new APIError(
         "API Error",
@@ -63,12 +65,11 @@ class CategoryRepository {
   async UpdateCategory(categoryId, data) {
     try {
       // Find the category by ID and update its fields
+      console.log("data update wala", data);
       const updatedCategory = await CategoryModel.findByIdAndUpdate(
         categoryId,
         {
-          $set: {
-            data,
-          },
+          $set: data,
         },
         { new: true } // Return the updated category
       );

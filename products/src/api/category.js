@@ -21,16 +21,18 @@ module.exports = (app) => {
     }
   });
 
-  app.get("/categories", async (req, res, next) => {
+  app.get("/get/categories", async (req, res, next) => {
     try {
       const { data } = await service.GetCategories();
+      console.log(data);
       return res.status(200).json(data);
     } catch (err) {
+      console.log(err);
       next(err);
     }
   });
 
-  app.get("/category/:id", async (req, res, next) => {
+  app.get("/get/category/:id", async (req, res, next) => {
     const categoryId = req.params.id;
 
     try {
@@ -55,10 +57,11 @@ module.exports = (app) => {
 
   app.put("/category/update/:id", async (req, res, next) => {
     const categoryId = req.params.id;
-    const updatedData = req.body; // Modify this to match your category update input fields
-
+    const updatedData = req.body; 
+    console.log(updatedData?. subcategory['eggs']?.image);
     try {
       const { data } = await service.UpdateCategory(categoryId, updatedData);
+      console.log(data);
       return res.status(200).json(data);
     } catch (err) {
       next(err);
