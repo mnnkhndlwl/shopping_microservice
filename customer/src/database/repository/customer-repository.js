@@ -16,6 +16,15 @@ class CustomerRepository {
     return customerResult;
   }
 
+  async allusers() {
+    try {
+      const customer = await CustomerModel.find().populate("address");
+      return customer;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async CreateAddress({ _id, type, completeAddress, latitude, longitude }) {
     const profile = await CustomerModel.findById(_id);
 
@@ -93,43 +102,43 @@ class CustomerRepository {
         subcategory: productData.subcategory,
         weight: productData.weight,
       };
-  
+
       const profile = await CustomerModel.findById(customerId).populate(
         "wishlist"
       );
-  
+
       if (!profile) {
         throw new Error("Customer profile not found");
       }
-  
+
       const wishlist = profile.wishlist || [];
-  
+
       // Check if the product is already in the wishlist
       const isProductInWishlist = wishlist.some(
         (item) => item._id.toString() === product._id.toString()
       );
-  
+
       if (isProductInWishlist) {
         // If the product is already in the wishlist, remove it
         const updatedWishlist = wishlist.filter(
           (item) => item._id.toString() !== product._id.toString()
         );
         profile.wishlist = updatedWishlist;
-       // return false;
+        // return false;
       } else {
         // If the product is not in the wishlist, add it
         wishlist.push(product);
         profile.wishlist = wishlist;
-       // return true;
+        // return true;
       }
-  
+
       const profileResult = await profile.save();
-  
+
       return profileResult.wishlist;
     } catch (error) {
       console.log(error);
     }
-  }  
+  }
 
   async AddCartItem(customerId, { _id, name, price, banner }, qty, isRemove) {
     const profile = await CustomerModel.findById(customerId).populate("cart");

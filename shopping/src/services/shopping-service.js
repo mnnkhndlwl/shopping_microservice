@@ -15,7 +15,7 @@ class ShoppingService {
       // create a PaymentIntent
       console.log(total);
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: total.amount * 0.012 * 100 * 100, // Integer, usd -> pennies, eur -> cents
+        amount: total.amount * 100 , // Integer, usd -> pennies, eur -> cents
         currency: "usd",
         description: "Software development services",
         shipping: {
@@ -33,7 +33,10 @@ class ShoppingService {
         },
       });
       // Return the secret
-      return FormateData(paymentIntent.client_secret);
+      return FormateData({
+        id: paymentIntent.id,
+        client_secret: paymentIntent.client_secret,
+      });
     } catch (e) {
       console.log(e);
       return FormateData({
@@ -50,10 +53,11 @@ class ShoppingService {
   }
 
   async PlaceOrder(userInput) {
-    const { _id, products, total, address, status } = userInput;
+    const { _id, transaction, products, total, address, status } = userInput;
 
     const orderResult = await this.repository.CreateNewOrder(
       _id,
+      transaction,
       products,
       total,
       address,
@@ -65,6 +69,11 @@ class ShoppingService {
 
   async GetOrders(customerId) {
     const orders = await this.repository.Orders(customerId);
+    return FormateData(orders);
+  }
+
+  async GetAll() {
+    const orders = await this.repository.GetOrders();
     return FormateData(orders);
   }
 

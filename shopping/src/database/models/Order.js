@@ -4,6 +4,9 @@ const Schema = mongoose.Schema;
 
 const OrderSchema = new Schema(
   {
+    transaction : {
+      type:String
+    },
     products: [
       {
         _id: String,

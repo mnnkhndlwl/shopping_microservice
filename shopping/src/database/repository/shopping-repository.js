@@ -20,6 +20,8 @@ class ShoppingRepository {
     throw new Error("Data Not found!");
   }
 
+
+
   async AddCartItem(customerId, item, qty, isRemove) {
     // return await CartModel.deleteMany();
 
@@ -60,14 +62,26 @@ class ShoppingRepository {
     }
   }
 
-  async CreateNewOrder(id, products, total, address, status) {
+  async GetOrders() {
+    try {
+      const all = await OrderModel.find();
+      return all;
+    } catch (error) {
+      return {
+        "error" : error
+      }
+    }
+  }
+
+  async CreateNewOrder(id,transaction, products, total, address, status) {
     //required to verify payment through TxnId
 
     try {
-      const data = { id, products, total, address, status };
+      const data = { id,transaction, products, total, address, status };
 
       const order = new OrderModel({
         customer_id: id,
+        transaction: transaction,
         ...data,
       });
       const orderResult = await order.save();
